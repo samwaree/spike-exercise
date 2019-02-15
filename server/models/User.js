@@ -28,6 +28,18 @@ UserSchema.pre('save', function(next) {
     })
 })
 
+UserSchema.methods.addCourse = function(c, callback) {
+    this.courses.push(c)
+    this.save(function (err){
+        if (err) return callback(err)
+        callback(null)
+    })
+}
+
+//TODO: Add update username
+
+//TODO: Add update password
+
 UserSchema.methods.comparePassword = function(candidatePassword, callback) {
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
         if (err) return callback(err)
