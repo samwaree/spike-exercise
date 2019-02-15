@@ -8,12 +8,20 @@ let CourseSchema = new mongoose.Schema({
     comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}]
 })
 
-//TODO: Add assignment method
+CourseSchema.methods.addAssignment = function(a, callback) {
+    this.assignments.push(a)
+    this.save(function (err) {
+        if (err) return callback(err)
+        callback(null)
+    })
+}
 
-//TODO: Add get assignments method
-
-//TODO: Add comment method
-
-//TODO: Update GPA method
+CourseSchema.methods.addComment = function(c, callback) {
+    this.comments.push(c)
+    this.save(function (err) {
+        if (err) return callback(err)
+        callback(null)
+    })
+}
 
 module.exports = mongoose.model('Course', CourseSchema)

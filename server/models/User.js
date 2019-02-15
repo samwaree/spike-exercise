@@ -11,7 +11,7 @@ let UserSchema = new mongoose.Schema({
 
 UserSchema.pre('save', function(next) {
     var user = this;
-    console.log('Ran pre')
+
     if (!user.isModified('password')) {
         return next()
     }
@@ -35,10 +35,6 @@ UserSchema.methods.addCourse = function(c, callback) {
         callback(null)
     })
 }
-
-//TODO: Add update username
-
-//TODO: Add update password
 
 UserSchema.methods.comparePassword = function(candidatePassword, callback) {
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
