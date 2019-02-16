@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 let CourseSchema = new mongoose.Schema({
     name: {type: String, required: true},
     semester: {type: String},
-    gpa: {type: Number},
+    gpa: {type: Number, default: 0},
     assignments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Assignment'}],
     comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}]
 })
@@ -22,6 +22,17 @@ CourseSchema.methods.addComment = function(c, callback) {
         if (err) return callback(err)
         callback(null)
     })
+}
+
+CourseSchema.methods.updateGPA = function(callback) {
+    var sum, count = 0
+    this.assignments.forEach( (assignment) => {
+        assignment.updateGPA( function (){
+            sum += assignment.rating
+        })
+    })
+    this.gpa = sum / count
+    callback()
 }
 
 module.exports = mongoose.model('Course', CourseSchema)

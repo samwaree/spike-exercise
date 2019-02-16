@@ -36,6 +36,21 @@ UserSchema.methods.addCourse = function(c, callback) {
     })
 }
 
+UserSchema.methods.removeCourse = function(c, callback) {
+    var index = this.courses.findIndex((el) => {
+        return el.equals(c._id)
+    })
+    if (index !== -1) {
+        this.courses.splice(index, 1)
+        this.save(function (err) {
+            if (err) return callback (err)
+        })
+        callback(null, this)
+    } else {
+        callback(null, null)
+    }
+}
+
 UserSchema.methods.comparePassword = function(candidatePassword, callback) {
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
         if (err) {

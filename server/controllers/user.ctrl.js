@@ -15,9 +15,9 @@ module.exports = {
 
         user.save( function (err, newUser) {
             if (err) {
-                res.send(err)
+                res.sendStatus(500)
             } else if (!newUser) {
-                res.send(400)
+                res.sendStatus(400)
             } else {
                 res.send(newUser)
             }
@@ -145,6 +145,11 @@ module.exports = {
             }
         })
     },
+    /**
+     * Adds a course to a users course list
+     * @param req.body.user_id      user id of user
+     * @param req.body.course_id    course id
+     */
     addCourse: (req, res, next) => {
         User.findById(req.body.user_id, (err, user) => {
             if (err) {
