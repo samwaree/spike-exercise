@@ -6,7 +6,7 @@ const mongoose = require('mongoose'),
 let UserSchema = new mongoose.Schema({
     username: {type: String, required: true, index: {unique: true}},
     password: {type: String, required: true},
-    courses: [{type: mongoose.Schema.Types.ObjectId, ref: 'Course'}] //TODO: make sure this works
+    courses: [{type: mongoose.Schema.Types.ObjectId, ref: 'Course'}]
 })
 
 UserSchema.pre('save', function(next) {
@@ -32,13 +32,16 @@ UserSchema.methods.addCourse = function(c, callback) {
     this.courses.push(c)
     this.save(function (err){
         if (err) return callback(err)
-        callback(null)
+        callback(null, this)
     })
 }
 
 UserSchema.methods.comparePassword = function(candidatePassword, callback) {
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-        if (err) return callback(err)
+        if (err) {
+            callback(err)
+            return
+        }
         callback(null, isMatch)
     })
 }
