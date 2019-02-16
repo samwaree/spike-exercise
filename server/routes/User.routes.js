@@ -10,4 +10,8 @@ module.exports = (router) => {
     router.route('/user/:id/updatepass').post(User.updatePassword)
 
     router.route('/user/:id/updateusr').post(User.updateUsername)
+
+    router.route('/user/removecourse').post(User.removeCourse)
+
+    router.route('/user/addcourse').post(User.addCourse)
 }

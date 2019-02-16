@@ -22,7 +22,10 @@ AssignmentSchema.methods.updateGPA = function(callback) {
         count++
     })
     this.gpa = sum / count
-    callback()
+    this.save(function(err) {
+        if (err) callback(err)
+        callback(null)
+    })
 }
 
 module.exports = mongoose.model('Assignment', AssignmentSchema)

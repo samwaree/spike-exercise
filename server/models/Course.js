@@ -27,12 +27,16 @@ CourseSchema.methods.addComment = function(c, callback) {
 CourseSchema.methods.updateGPA = function(callback) {
     var sum, count = 0
     this.assignments.forEach( (assignment) => {
-        assignment.updateGPA( function (){
+        assignment.updateGPA( function (err) {
+            if (err) return callback(err)
             sum += assignment.rating
         })
     })
     this.gpa = sum / count
-    callback()
+    this.save(function(err) {
+        if (err) return callback(err)
+        callback(null)
+    })
 }
 
 module.exports = mongoose.model('Course', CourseSchema)

@@ -29,11 +29,18 @@ UserSchema.pre('save', function(next) {
 })
 
 UserSchema.methods.addCourse = function(c, callback) {
-    this.courses.push(c)
-    this.save(function (err){
-        if (err) return callback(err)
-        callback(null, this)
+    var index = this.courses.findIndex((el) => {
+        return el.equals(c._id)
     })
+    if (index !== -1) {
+        return callback(null, null)
+    } else {
+        this.courses.push(c)
+        this.save(function (err){
+            if (err) return callback(err)
+            callback(null, this)
+        })
+    }
 }
 
 UserSchema.methods.removeCourse = function(c, callback) {
@@ -45,9 +52,9 @@ UserSchema.methods.removeCourse = function(c, callback) {
         this.save(function (err) {
             if (err) return callback (err)
         })
-        callback(null, this)
+        callback(null, true)
     } else {
-        callback(null, null)
+        callback(null, false)
     }
 }
 

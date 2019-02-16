@@ -60,6 +60,7 @@ module.exports = {
     getUser: (req, res, next) => {
         User.findById(req.params.id, (err, user) => {
             if (err) {
+                res.sendStatus(500)
             } else if (!user) {
                 res.sendStatus(400)
             } else {
@@ -157,11 +158,45 @@ module.exports = {
             } else if (!user) {
                 res.sendStatus(400)
             } else {
-                user.addCourse( req.body.course_id, (err, user) => {
+                Course.findById(req.body.course_id, (err, course) => {
                     if (err) {
                         res.sendStatus(500)
+                    } else if (!course) {
+                        res.json('Course was not found')
                     } else {
-                        res.send(user)
+                        user.addCourse( course, (err, newUser) => {
+                            if (err) {
+                                res.sendStatus(500)
+                            } else if (!newUser) {
+                                res.json('Course already added')
+                            } else {
+                                res.json('Course added successfully')
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    },
+    /**
+     * Removes a course from a users course list
+     * @param req.body.user_id id of the user
+     * @param req.body.course_id id of the course
+     */
+    removeCourse: (req, res, next) => {
+        User.findById(req.body.user_id, (err, user) => {
+            if (err) {
+                res.sendStatus(500)
+            } else if (!user) {
+                res.sendStatus(400)
+            } else {
+                user.removeCourse({_id: req.body.course_id}, (err, wasDeleted) => {
+                    if (err) {
+                        res.sendStatus(500)
+                    } else if (!wasDeleted) {
+                        res.json('Course was not found')
+                    } else {
+                        res.json('Course removed successfully')
                     }
                 })
             }

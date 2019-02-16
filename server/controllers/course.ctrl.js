@@ -2,6 +2,12 @@ const Course = require('../models/Course'),
       User = require('../models/User')
 
 module.exports = {
+    /**
+     * Creates a course
+     * @param req.body.user_id  Id of the owner of course
+     * @param req.body.name     Name of the course
+     * @param req.body.semester Semester of the course
+     */
     createCourse: (req, res, next) => {
         User.findById(req.body.user_id, (err, user) => {
             if (err) {
@@ -31,6 +37,10 @@ module.exports = {
             }
         })
     }, 
+    /**
+     * Deletes a course. Also deteles from all users
+     * @param req.params.id Id of the course
+     */
     deleteCourse: (req, res, next) => {
         Course.findByIdAndDelete(req.params.id, (err, course) => {
             if (err) {
@@ -55,6 +65,10 @@ module.exports = {
             }
         })
     },
+    /**
+     * Gets a course
+     * @param req.param.id id of the course
+     */
     getCourse: (req, res, next) => {
         Course.findById(req.params.id).exec((err, course) => {
             if (err) {
