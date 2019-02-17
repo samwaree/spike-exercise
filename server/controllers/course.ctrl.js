@@ -1,5 +1,6 @@
 const Course = require('../models/Course'),
-      User = require('../models/User')
+      User = require('../models/User'),
+      Comment = require('../models/Comment')
 
 module.exports = {
     /**
@@ -70,7 +71,7 @@ module.exports = {
      * @param req.param.id id of the course
      */
     getCourse: (req, res, next) => {
-        Course.findById(req.params.id).populate('assignments').exec((err, course) => {
+        Course.findById(req.params.id).populate('assignments').populate('comments').exec((err, course) => {
             if (err) {
                 res.sendStatus(500)
             } else if (!course) {
@@ -87,6 +88,85 @@ module.exports = {
                         res.sendStatus(500)
                     } else {
                         res.send(newCourse)
+                    }
+                })
+            }
+        })
+    },
+    /**
+     * Creates a comment on a course
+     * @param req.params.id     id of the course
+     * @param req.body.user_id  id of the user
+     * @param req.body.content  content of the comment
+     */
+    createComment: (req, res, next) => {
+        Course.findById(req.params.id, (err, course) => {
+            if (err) {
+                res.sendStatus(500)
+            } else if (!course) {
+                res.sendStatus(400)
+            } else {
+                User.findById(req.body.user_id, (err, user) => {
+                    if (err) {
+                        res.sendStatus(500)
+                    } else if (!user) {
+                        res.sendStatus(400)
+                    } else {
+                        var comment = new Comment({
+                            content: req.body.content,
+                            poster: user
+                        })
+                        comment.save((err, newComment) => {
+                            if (err) {
+                                res.sendStatus(500)
+                            } else {
+                                course.addComment(newComment, (err) => {
+                                    if (err) {
+                                        res.sendStatus(500)
+                                    } else {
+                                        res.send(newComment)
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    },
+    /**
+     * Removes a comment and deletes it
+     * @param req.params.id         id of the course
+     * @param req.body.comment_id   id of the comment
+     */
+    deleteComment: (req, res, next) => {
+        Course.findById(req.params.id, (err, course) => {
+            if (err) {
+                res.sendStatus(500)
+            } else if (!course) {
+                res.sendStatus(400)
+            } else {
+                Comment.findById(req.body.comment_id, (err, comment) => {
+                    if (err) {
+                        res.sendStatus(500)
+                    } else if (!course) {
+                        res.sendStatus(400)
+                    } else {
+                        course.removeComment(comment, (err, wasRemoved) => {
+                            if (err) {
+                                res.sendStatus(500)
+                            } else if (!wasRemoved) {
+                                res.sendStatus(400)
+                            } else {
+                                Comment.findByIdAndDelete(req.body.comment_id, (err) => {
+                                    if (err) {
+                                        res.sendStatus(500)
+                                    } else {
+                                        res.send(course)
+                                    }
+                                })
+                            }
+                        })
                     }
                 })
             }

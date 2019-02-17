@@ -38,6 +38,21 @@ CourseSchema.methods.removeAssignment = function(a, callback) {
     }
 }
 
+CourseSchema.methods.removeComment = function(c, callback) {
+    var index = this.comments.findIndex((el) => {
+        return el.equals(c._id)
+    })
+    if (index !== -1) {
+        this.comments.splice(index, 1)
+        this.save(function(err) {
+            if (err) return callback(err)
+            return callback(null, true)
+        })
+    } else {
+        return callback(null, false)
+    }
+}
+
 CourseSchema.methods.addComment = function(c, callback) {
     this.comments.push(c)
     this.save(function (err) {
