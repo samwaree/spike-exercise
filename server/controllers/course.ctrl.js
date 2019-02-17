@@ -66,20 +66,30 @@ module.exports = {
         })
     },
     /**
-     * Gets a course
+     * Gets a course while also updating its gpa
      * @param req.param.id id of the course
      */
     getCourse: (req, res, next) => {
-        Course.findById(req.params.id).exec((err, course) => {
+        Course.findById(req.params.id).populate('assignments').exec((err, course) => {
             if (err) {
                 res.sendStatus(500)
             } else if (!course) {
                 res.sendStatus(400)
             } else {
-                course.updateGPA(function () {
-                    res.send(course)
+                var sum = 0, count = 0
+                course.assignments.forEach((el) => {
+                    sum += el.gpa
+                    count++
+                })
+                course.gpa = sum / count
+                course.save((err, newCourse) => {
+                    if (err) {
+                        res.sendStatus(500)
+                    } else {
+                        res.send(newCourse)
+                    }
                 })
             }
         })
-    },
+    }
 }
