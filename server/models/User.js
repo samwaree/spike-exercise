@@ -9,6 +9,9 @@ let UserSchema = new mongoose.Schema({
     courses: [{type: mongoose.Schema.Types.ObjectId, ref: 'Course'}]
 })
 
+/**
+ * Hash pasword before putting in db
+ */
 UserSchema.pre('save', function(next) {
     var user = this;
 

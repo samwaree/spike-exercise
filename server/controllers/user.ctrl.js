@@ -88,7 +88,7 @@ module.exports = {
                     } else if (!isMatch) {
                         res.sendStatus(400)
                     } else {
-                        if (req.body.newPassword1 == req.body.newPassword2) {
+                        if (req.body.newPassword1 === req.body.newPassword2) {
                             user.password = req.body.newPassword1
                             user.save((err) => {
                                 if (err) {

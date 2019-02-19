@@ -49,6 +49,7 @@ module.exports = {
             } else if (!course) {
                 res.sendStatus(400)
             } else {
+                // Removes the course from all users
                 User.find({}, (err, users) => {
                     if (err) {
                         res.sendStatus(500)

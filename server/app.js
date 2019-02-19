@@ -1,6 +1,6 @@
 const mongoose = require('mongoose'),
       express = require('express'),
-      routes = require('./routes/')
+      routes = require('./routes/'),
       app = express(),
       bodyParser = require('body-parser'),
       router = express.Router(),
