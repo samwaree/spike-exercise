@@ -54,17 +54,27 @@ module.exports = {
         })
     },
     /**
-     * Get a user
-     * @param req.params.id id of user to get
+     * Get a user and validate
+     * @param req.params.id usename of user to get
+     * @param req.body.password password to check
      */
     getUser: (req, res, next) => {
-        User.findById(req.params.id, (err, user) => {
+        User.findOne({username: req.params.id}, (err, user) => {
             if (err) {
                 res.sendStatus(500)
             } else if (!user) {
                 res.sendStatus(400)
             } else {
-                res.send(user)
+                user.comparePassword(req.body.password, (err, isMatch) => {
+                    if (err) {
+                        res.sendStatus(500)
+                    } else if (!isMatch) {
+                        res.sendStatus(400)
+                    } else {
+                        console.log('Got User')
+                        res.send(user)
+                    }
+                })
             }
         })
     },

@@ -1,6 +1,25 @@
 const Assignment = require('../models/Assignment'),
       Course = require('../models/Course')
 
+function updateParentGPA(course_id, callback) {
+    Course.findById(course_id).populate('assignments').exec((err, course) => {
+        if (err) return callback(err)
+        var sum = 0, count = 0
+        course.assignments.forEach(element => {
+            sum += element.gpa
+            count++
+        });
+        course.gpa = sum / count
+        course.save((err, newCourse) => {
+            if (err) {
+                return callback(err)
+            } else {
+                callback(null)
+            }
+        })
+    })
+}
+
 module.exports = {
     /**
      * Creates an assignment
@@ -17,7 +36,8 @@ module.exports = {
             } else {
                 var assignment = new Assignment( {
                     name: req.body.name,
-                    description: req.body.description
+                    description: req.body.description,
+                    parent: course
                 })
 
                 assignment.save((err, newAssignment) => {
@@ -121,7 +141,13 @@ module.exports = {
                             if (err) {
                                 res.sendStatus(500)
                             } else {
-                                res.send(assignment)
+                                updateParentGPA(assignment.parent, (err) => {
+                                    if (err) {
+                                        res.sendStatus(500)
+                                    } else {
+                                        res.send(assignment)
+                                    }
+                                })
                             }
                         })
                     }

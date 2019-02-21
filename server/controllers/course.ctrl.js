@@ -1,7 +1,7 @@
 const Course = require('../models/Course'),
       User = require('../models/User'),
       Comment = require('../models/Comment')
-
+      
 module.exports = {
     /**
      * Creates a course
@@ -68,7 +68,7 @@ module.exports = {
         })
     },
     /**
-     * Gets a course while also updating its gpa
+     * Gets a course
      * @param req.param.id id of the course
      */
     getCourse: (req, res, next) => {
@@ -78,19 +78,19 @@ module.exports = {
             } else if (!course) {
                 res.sendStatus(400)
             } else {
-                var sum = 0, count = 0
-                course.assignments.forEach((el) => {
-                    sum += el.gpa
-                    count++
-                })
-                course.gpa = sum / count
-                course.save((err, newCourse) => {
-                    if (err) {
-                        res.sendStatus(500)
-                    } else {
-                        res.send(newCourse)
-                    }
-                })
+                res.send(course)
+            }
+        })
+    },
+    /**
+     * Gets all courses
+     */
+    getCourses: (req, res, next) => {
+        Course.find({}).populate('assignments').populate('comments').exec((err, courses) => {
+            if (err) {
+                res.sendStatus(500)
+            } else {
+                res.send(courses)
             }
         })
     },

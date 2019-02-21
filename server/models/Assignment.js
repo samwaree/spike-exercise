@@ -4,7 +4,8 @@ let AssignmentSchema = new mongoose.Schema({
     name: {type: String, require: true},
     description: {type: String},
     gpa: {type: Number, default: 0},
-    ratings: [{type: Number}]
+    ratings: [{type: Number}],
+    parent: {type: mongoose.Schema.Types.ObjectId, ref: 'Course'}
 })
 
 AssignmentSchema.methods.addRating = function(rat, callback) {

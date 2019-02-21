@@ -3,7 +3,9 @@ const mongoose = require('mongoose'),
       routes = require('./routes/'),
       app = express(),
       bodyParser = require('body-parser'),
+      cors = require('cors'),
       router = express.Router(),
+      helmet = require('helmet'),
       url = 'mongodb://localhost:27017/spike-exercise-test';
 
 mongoose.connect(url, {useNewUrlParser: true}, function(err) {
@@ -13,12 +15,14 @@ mongoose.connect(url, {useNewUrlParser: true}, function(err) {
     console.log('Connected to: %s', url)
 })
       
-let port = 5000
+let port = 8080
 
 routes(router)
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
+app.use(helmet())
+app.use(cors())
 app.use('/api', router)
 
 app.listen(port, () => {

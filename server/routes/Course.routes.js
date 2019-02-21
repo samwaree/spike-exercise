@@ -10,4 +10,6 @@ module.exports = (router) => {
     router.route('/course/:id/comment').post(Course.createComment)
 
     router.route('/course/:id/comment').delete(Course.deleteComment)
+
+    router.route('/courses').get(Course.getCourses)
 }
