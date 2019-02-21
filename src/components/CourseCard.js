@@ -14,8 +14,16 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { withStyles } from '@material-ui/core/styles';
-import { stat } from 'fs';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import { connect } from 'react-redux';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import MenuItem from '@material-ui/core/MenuItem'
+
 
 const styles = theme => ({
     card: {
@@ -76,7 +84,7 @@ class CourseCard extends React.Component {
                         </ExpansionPanelSummary>
                         {assignments.map(data => {
                             return (<div key={data._id}>
-                                <Assignment assignment={data.name} description={data.description} gpa={data.gpa}/>
+                                <Assignment assignment_id={data._id} assignment={data.name} description={data.description} gpa={data.gpa}/>
                             </div>)
                         })}
                       </ExpansionPanel>
@@ -93,20 +101,124 @@ class CourseCard extends React.Component {
 
 
 class Assignment extends React.Component {
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            options: [
+                {
+                    value: 0,
+                    label: 'A'
+                },
+                {
+                    value: 1,
+                    label: 'A-'
+                },
+                {
+                    value: 2,
+                    label: 'B+'
+                },
+                {
+                    value: 3,
+                    label: 'B'
+                },
+                {
+                    value: 4,
+                    label: 'B-'
+                },
+                {
+                    value: 5,
+                    label: 'C+'
+                },
+                {
+                    value: 6,
+                    label: 'C'
+                },
+                {
+                    value: 7,
+                    label: 'C-'
+                },
+                {
+                    value: 8,
+                    label: 'D+'
+                },
+                {
+                    value: 9,
+                    label: 'D'
+                },
+                {
+                    value: 10,
+                    label: 'D-'
+                },{
+                    value: 11,
+                    label: 'F'
+                },
+            ],
+            open: false,
+            grade: ""
+        }
+    }
+    
+        handleSelect = (e) => {
+            this.setState({
+                grade: e.target.value
+            })
+        }
+      handleClickOpen = () => {
+        this.setState({ open: true });
+      };
+    
+      handleClose = () => {
+        this.setState({ open: false });
+      };
+
     render() {
+
         const assignment = this.props.assignment
         const description = this.props.description
+        const id = this.props.assignment_id
 
+        
         return(
+            <div>
             <Card spacing="16">
                 <CardHeader title={assignment} subheader={description}
                 action = {
-                    <IconButton>
+                    <IconButton onClick={this.handleClickOpen}>
                         <StarRateIcon/>
                     </IconButton>
                 }
                 />
             </Card>
+            
+            <Dialog open={this.state.open}onClose={this.handleClose}>
+                <DialogTitle >Rate Assignment</DialogTitle>
+                <DialogContent>
+                <TextField
+                        id="grade"
+                        select
+                        label="Select"
+                        value={this.state.grade}
+                        onChange={this.handleSelect}
+                        fullWidth
+                    >
+                        {this.state.options.map(option => (
+                            <MenuItem id="semesterLabel" key={option.value} value={option.label}>
+                                {option.label}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+                </DialogContent>
+                <DialogActions>
+                <Button onClick={this.handleClose} color="primary" fullWidth>
+                Cancel
+                </Button>
+                <Button onClick={this.handleClose} color="primary" fullWidth>
+                Submit
+                </Button>
+                </DialogActions>
+            </Dialog>
+            </div>
         )
     }
 }
