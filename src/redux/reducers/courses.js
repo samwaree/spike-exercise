@@ -9,6 +9,13 @@ export default (state = initialState, action) => {
                 ...state,
                 courses: action.courses
             }
+        case 'ADD_COURSE':
+            let courses = Object.assign({}, state.courses)
+            courses.push(action.course)
+            return {
+                ...state,
+                courses: courses
+            }
         default:
             return state
     }

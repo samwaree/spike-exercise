@@ -14,6 +14,19 @@ export function loadCourses () {
     }
 }
 
+export function createCourse(course_data) {
+    return (dispatch) => {
+        axios.post(`${url}course`, course_data)
+        .then((res) => {
+            let course = res.data;
+            dispatch({type: 'ADD_COURSE', course})
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+
+}
+
 export function createUser (user_data) {
     return (dispatch) => {
         axios.post(`${url}user`, user_data)

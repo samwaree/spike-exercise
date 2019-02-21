@@ -6,7 +6,7 @@ import 'typeface-roboto'
 import NavBar from './components/NavBar';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
-
+import CreateCourse from './components/CreateCourse'
 
 class App extends Component {
   render() {
@@ -19,6 +19,7 @@ class App extends Component {
             <Route exact path="/" component={Feed} />
             <Route exact path="/login" component={SignIn}/>
             <Route exact path="/signup" component={SignUp}/>
+            <Route exact path="/createcourse" component={CreateCourse}/>
         </Switch>
       </div>
     );
