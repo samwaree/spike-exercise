@@ -8,6 +8,11 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem'
+import Button from '@material-ui/core/Button';
+import { createCourse } from '../redux/actions/actions'
+import PropTypes from 'prop-types';
+
+
 
 const styles = theme => ({
     main: {
@@ -41,18 +46,12 @@ const styles = theme => ({
     },
 });
 
-const semesters = [
-    {
-        value: 0,
-        label: 'Spring 2019'
-    },
-    {
-        value: 1,
-        label: 'Fall 2018'
+const mapStateToProps = state => {
+    return {
+        user_id: state.user.user._id,
+        isAuth: state.user.isAuth
     }
-]
-
-
+}
 
 class CreateCourse extends React.Component {
 
@@ -60,50 +59,139 @@ class CreateCourse extends React.Component {
         super(props)
 
         this.state = {
+            options: [
+                {
+                    value: 0,
+                    label: 'Spring 2019'
+                },
+                {
+                    value: 1,
+                    label: 'Fall 2018'
+                },
+                {
+                    value: 2,
+                    label: 'Summer 2018'
+                },
+                {
+                    value: 3,
+                    label: 'Spring 2018'
+                },
+                {
+                    value: 4,
+                    label: 'Fall 2017'
+                },
+                {
+                    value: 5,
+                    label: 'Summer 2017'
+                },
+                {
+                    value: 6,
+                    label: 'Spring 2017'
+                },
+                {
+                    value: 7,
+                    label: 'Fall 2016'
+                },
+                {
+                    value: 8,
+                    label: 'Summer 2016'
+                },
+                {
+                    value: 9,
+                    label: 'Spring 2016'
+                },
+                {
+                    value: 10,
+                    label: 'Fall 2015'
+                },
+                {
+                    value: 11,
+                    label: 'Summer 2015'
+                },
+                {
+                    value: 12,
+                    label: 'Spring 2015'
+                },
+            ],
             name: "",
-            semester: "",
-            label: "",
-            user: ""
+            semesterLabel: "",
+            redirect: false
         }
+    }
+
+    handleSelect = (e) => {
+        this.setState({
+            semesterLabel: e.target.value,
+        })
     }
 
     handleChange = (e) => {
         this.setState({
-            [e.target.id]: e.target.value
+            name: e.target.value
         })
     }
+    onSubmit = (e) => {
+        if (!this.props.isAuth) {
+            this.context.router.history.push('/login')
+        } else {
+            this.props.createCourse({
+                user_id: this.props.user_id,
+                name: this.state.name,
+                semester: this.state.semesterLabel
+            }, () => {
+                this.setState({
+                    redirect: true
+                })
+            })
+            e.preventDefault()
+        }
+        
+    }
 
-    
+    renderRedirect = (e) => {
+        if (this.state.redirect) {
+          this.context.router.history.push('/')
+        } 
+    }
     render() {
         const { classes } = this.props;
 
         return(
             <main className={classes.main}>
+            {this.renderRedirect()}
             <CssBaseline/>
             <Paper className={classes.paper}>
             <Typography component="h1" variant="h5">
             Create Course
             </Typography>
-            <form className={classes.form} >
+            <form className={classes.form} onSubmit={this.onSubmit}>
                 <FormControl margin="normal" required fullWidth value={this.state.name} onChange={this.handleChange}>
                     <InputLabel>Name</InputLabel>
                     <Input name="name" id="name"/>
                 </FormControl>
-                <FormControl margin="normal" required fullWidth value="Spring 2019" >
+                <FormControl margin="normal" required fullWidth >
                     <TextField
-                        id="semester"
+                        id="semesterLabel"
                         select
                         label="Select"
-                        value={this.state.semester}
-                        onChange={this.handleChange}
+                        value={this.state.semesterLabel}
+                        onChange={this.handleSelect}
                     >
-                        {semesters.map(option => (
-                            <MenuItem key={option.value} value={option.value}>
+                        {this.state.options.map(option => (
+                            <MenuItem id="semesterLabel" key={option.value} value={option.label}>
                                 {option.label}
                             </MenuItem>
                         ))}
                     </TextField>
                 </FormControl>
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                color="primary"
+                >
+                    Submit
+                </Button>
             </form>
             </Paper>
             </main>
@@ -111,4 +199,8 @@ class CreateCourse extends React.Component {
     }
 }
 
-export default withStyles(styles)(CreateCourse)
+CreateCourse.contextTypes = {
+    router: PropTypes.object.isRequired
+}
+
+export default connect(mapStateToProps, { createCourse })(withStyles(styles)(CreateCourse))

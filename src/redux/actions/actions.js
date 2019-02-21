@@ -14,11 +14,13 @@ export function loadCourses () {
     }
 }
 
-export function createCourse(course_data) {
+export function createCourse(course_data, callback) {
     return (dispatch) => {
+        console.log(course_data)
         axios.post(`${url}course`, course_data)
         .then((res) => {
             let course = res.data;
+            callback()
             dispatch({type: 'ADD_COURSE', course})
         }).catch((err) => {
             console.log(err)

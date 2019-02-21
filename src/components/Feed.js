@@ -28,7 +28,7 @@ class Feed extends Component {
     }
 
     onAdd = () => {
-        this.context.router.histor.push('/createcourse')
+        this.context.router.history.push('/createcourse')
     }
 
     render() {  
@@ -42,7 +42,9 @@ class Feed extends Component {
                 })}
                 {this.props.isAuth &&
                     <Grid item>
-                    <IconButton>
+                    <IconButton
+                        onClick={this.onAdd}
+                    >
                         <AddIcon/>
                     </IconButton>
                 </Grid>
