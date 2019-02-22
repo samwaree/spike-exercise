@@ -1,23 +1,28 @@
-const Assignment = require('../models/Assignment'),
-      Course = require('../models/Course')
+const Assignment = require("../models/Assignment"),
+    Course = require("../models/Course");
 
 function updateParentGPA(course_id, callback) {
-    Course.findById(course_id).populate('assignments').exec((err, course) => {
-        if (err) return callback(err)
-        var sum = 0, count = 0
-        course.assignments.forEach(element => {
-            sum += element.gpa
-            count++
+    Course.findById(course_id)
+        .populate("assignments")
+        .exec((err, course) => {
+            if (err) return callback(err);
+            var sum = 0,
+                count = 0;
+            course.assignments.forEach(element => {
+                if (element.ratings.length > 0) {
+                    sum += element.gpa;
+                    count++;
+                }
+            });
+            course.gpa = sum / count;
+            course.save((err, newCourse) => {
+                if (err) {
+                    return callback(err);
+                } else {
+                    callback(null);
+                }
+            });
         });
-        course.gpa = sum / count
-        course.save((err, newCourse) => {
-            if (err) {
-                return callback(err)
-            } else {
-                callback(null)
-            }
-        })
-    })
 }
 
 module.exports = {
@@ -30,35 +35,35 @@ module.exports = {
     createAssignment: (req, res, next) => {
         Course.findById(req.body.course_id, (err, course) => {
             if (err) {
-                res.sendStatus(500)
+                res.sendStatus(500);
             } else if (!course) {
-                res.json('Course doesnt exist')
+                res.json("Course doesnt exist");
             } else {
-                var assignment = new Assignment( {
+                var assignment = new Assignment({
                     name: req.body.name,
                     description: req.body.description,
                     parent: course
-                })
+                });
 
                 assignment.save((err, newAssignment) => {
                     if (err) {
-                        res.sendStatus(500)
+                        res.sendStatus(500);
                     } else if (!newAssignment) {
-                        res.sendStatus(500)
+                        res.sendStatus(500);
                     } else {
                         course.addAssignment(newAssignment, (err, result) => {
                             if (err) {
-                                res.sendStatus(500)
+                                res.sendStatus(500);
                             } else if (!result) {
-                                res.json('Assignment already exists')
+                                res.json("Assignment already exists");
                             } else {
-                                res.send(newAssignment)
+                                res.send(newAssignment);
                             }
-                        })
+                        });
                     }
-                })
+                });
             }
-        })
+        });
     },
     /**
      * Deletes an assignment
@@ -68,35 +73,46 @@ module.exports = {
     deleteAssignment: (req, res, next) => {
         Course.findById(req.body.course_id, (err, course) => {
             if (err) {
-                res.sendStatus(500)
+                res.sendStatus(500);
             } else if (!course) {
-                res.json('Course does not exist')
+                res.json("Course does not exist");
             } else {
                 Assignment.findById(req.params.id, (err, assignment) => {
                     if (err) {
-                        res.sendStatus(500)
+                        res.sendStatus(500);
                     } else if (!assignment) {
-                        res.json('Assignment does not exist')
+                        res.json("Assignment does not exist");
                     } else {
-                        course.removeAssignment(assignment, (err, isRemoved) => {
-                            if (err) {
-                                res.sendStatus(500)
-                            } else if (!isRemoved) {
-                                res.json('Assignment does not belong to this course')
-                            } else {
-                                Assignment.findByIdAndDelete(req.params.id, (err) => {
-                                    if (err) {
-                                        res.sendStatus(500)
-                                    } else {
-                                        res.json('Assignment successfully deleted')
-                                    }
-                                })
+                        course.removeAssignment(
+                            assignment,
+                            (err, isRemoved) => {
+                                if (err) {
+                                    res.sendStatus(500);
+                                } else if (!isRemoved) {
+                                    res.json(
+                                        "Assignment does not belong to this course"
+                                    );
+                                } else {
+                                    Assignment.findByIdAndDelete(
+                                        req.params.id,
+                                        err => {
+                                            if (err) {
+                                                res.sendStatus(500);
+                                            } else {
+                                                updateParentGPA();
+                                                res.json(
+                                                    "Assignment successfully deleted"
+                                                );
+                                            }
+                                        }
+                                    );
+                                }
                             }
-                        })
+                        );
                     }
-                })
+                });
             }
-        })
+        });
     },
     /**
      * Update the assignment description
@@ -106,20 +122,20 @@ module.exports = {
     updateDescription: (req, res, next) => {
         Assignment.findById(req.params.id, (err, assignment) => {
             if (err) {
-                res.sendStatus(500)
+                res.sendStatus(500);
             } else if (!assignment) {
-                res.sendStatus(400)
+                res.sendStatus(400);
             } else {
-                assignment.description = req.body.description
+                assignment.description = req.body.description;
                 assignment.save((err, newAssignment) => {
                     if (err) {
-                        res.sendStatus(500)
+                        res.sendStatus(500);
                     } else {
-                        res.send(newAssignment)
+                        res.send(newAssignment);
                     }
-                })
+                });
             }
-        })
+        });
     },
     /**
      * Adds a rating for the assignment and updates GPA
@@ -129,30 +145,30 @@ module.exports = {
     rate: (req, res, next) => {
         Assignment.findById(req.params.id, (err, assignment) => {
             if (err) {
-                res.sendStatus(500)
+                res.sendStatus(500);
             } else if (!assignment) {
-                res.sendStatus(400)
+                res.sendStatus(400);
             } else {
-                assignment.addRating(req.body.rating, (err) => {
+                assignment.addRating(req.body.rating, err => {
                     if (err) {
-                        res.sendStatus(500)
+                        res.sendStatus(500);
                     } else {
-                        assignment.updateGPA((err) => {
+                        assignment.updateGPA(err => {
                             if (err) {
-                                res.sendStatus(500)
+                                res.sendStatus(500);
                             } else {
-                                updateParentGPA(assignment.parent, (err) => {
+                                updateParentGPA(assignment.parent, err => {
                                     if (err) {
-                                        res.sendStatus(500)
+                                        res.sendStatus(500);
                                     } else {
-                                        res.send(assignment)
+                                        res.send(assignment);
                                     }
-                                })
+                                });
                             }
-                        })
+                        });
                     }
-                })
+                });
             }
-        })
+        });
     }
-}
+};

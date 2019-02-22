@@ -1,55 +1,67 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { loadCourses } from '../redux/actions/actions'
-import CourseCard from './CourseCard'
-import Grid from '@material-ui/core/Grid';
-import { withStyles } from '@material-ui/core/styles';
-import IconButton from '@material-ui/core/IconButton';
-import AddIcon from '@material-ui/icons/Add'
-import PropTypes from 'prop-types';
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { loadCourses } from "../redux/actions/actions";
+import CourseCard from "./CourseCard";
+import Grid from "@material-ui/core/Grid";
+import { withStyles } from "@material-ui/core/styles";
+import IconButton from "@material-ui/core/IconButton";
+import AddIcon from "@material-ui/icons/Add";
+import PropTypes from "prop-types";
 
 const mapStateToProps = state => {
     return {
         courses: state.courses.courses,
         isAuth: state.user.isAuth
-    }
-}
+    };
+};
 
 const styles = theme => ({
-    buttonPadding: {    
-      padding: '16px',   
-    },
+    buttonPadding: {
+        padding: "16px"
+    }
 });
 
 class Feed extends Component {
-
     componentWillMount() {
-        this.props.loadCourses()
+        this.props.loadCourses();
     }
 
     onAdd = () => {
-        this.context.router.history.push('/createcourse')
-    }
+        this.context.router.history.push("/createcourse");
+    };
 
-    render() {  
+    render() {
         const { classes } = this.props;
         return (
-            <Grid className={classes.buttonPadding} container direction="row" justify="center" alignItems="center" spacing={16}> 
+            <Grid
+                className={classes.buttonPadding}
+                container
+                direction="row"
+                justify="center"
+                alignItems="center"
+                spacing={16}
+            >
                 {this.props.courses.map(data => {
-                    return (<Grid key={data._id} item sm>
-                        <CourseCard name={data.name} semester={data.semester} assignments={data.assignments} gpa={data.gpa}/>
-                    </Grid>)
+                    return (
+                        <Grid key={data._id} item>
+                            <CourseCard
+                                name={data.name}
+                                semester={data.semester}
+                                assignments={data.assignments}
+                                gpa={data.gpa}
+                                id={data._id}
+                                comments={data.comments}
+                            />
+                        </Grid>
+                    );
                 })}
-                {this.props.isAuth &&
+                {this.props.isAuth && (
                     <Grid item>
-                    <IconButton
-                        onClick={this.onAdd}
-                    >
-                        <AddIcon/>
-                    </IconButton>
-                </Grid>
-                }
-                
+                        <IconButton onClick={this.onAdd}>
+                            <AddIcon />
+                        </IconButton>
+                    </Grid>
+                )}
             </Grid>
         );
     }
@@ -57,6 +69,9 @@ class Feed extends Component {
 
 Feed.contextTypes = {
     router: PropTypes.object.isRequired
-}
+};
 
-export default connect(mapStateToProps, { loadCourses })(withStyles(styles)(Feed));
+export default connect(
+    mapStateToProps,
+    { loadCourses }
+)(withStyles(styles)(Feed));
