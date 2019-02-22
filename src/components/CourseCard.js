@@ -62,6 +62,107 @@ function Transition(props) {
     return <Slide direction="up" {...props} />;
 }
 
+const AddAssignment = props => (
+    <Dialog
+        open={props.addAssignmentOpen}
+        onClose={props.handleAddAssignmentClose}
+    >
+        <DialogTitle>Add Assignment</DialogTitle>
+        <DialogContent>
+            <TextField
+                id="assignmentName"
+                label="Assignment Name"
+                value={props.assignmentName}
+                onChange={props.handleChange}
+                fullWidth
+                required
+            />
+            <TextField
+                id="assignmentDescription"
+                label="Description"
+                value={props.assignmentDescription}
+                onChange={props.handleChange}
+                fullWidth
+                multiline={true}
+            />
+        </DialogContent>
+        <DialogActions>
+            <Button
+                onClick={props.handleAddAssignmentClose}
+                color="primary"
+                fullWidth
+            >
+                Cancel
+            </Button>
+            <Button onClick={props.onAddAssignment} color="primary" fullWidth>
+                Submit
+            </Button>
+        </DialogActions>
+    </Dialog>
+);
+
+const CommentDialog = props => (
+    <Dialog
+        fullScreen
+        open={props.commentOpen}
+        onClose={props.handleCommentClose}
+        TransitionComponent={Transition}
+    >
+        <AppBar
+            style={{
+                position: "relative"
+            }}
+        >
+            <Toolbar>
+                <IconButton
+                    color="inherit"
+                    onClick={props.handleCommentClose}
+                    aria-label="Close"
+                >
+                    <CloseIcon />
+                </IconButton>
+                <Typography
+                    variant="h6"
+                    color="inherit"
+                    style={{
+                        flex: 1
+                    }}
+                >
+                    Comments for {props.name}
+                </Typography>
+            </Toolbar>
+        </AppBar>
+        <List>
+            {props.comments.map(element => {
+                return (
+                    <div key={element._id}>
+                        <ListItem divider={true}>
+                            <ListItemText primary={element.content} />
+                        </ListItem>
+                    </div>
+                );
+            })}
+        </List>
+        {props.isAuth && (
+            <Paper>
+                <InputBase
+                    style={{
+                        padding: 16,
+                        width: "94%"
+                    }}
+                    placeholder="Comment..."
+                    value={props.commentContent}
+                    id="commentContent"
+                    onChange={props.handleChange}
+                />
+                <IconButton onClick={props.onAddComment}>
+                    <SendIcon />
+                </IconButton>
+            </Paper>
+        )}
+    </Dialog>
+);
+
 class CourseCard extends React.Component {
     constructor(props) {
         super(props);
@@ -142,7 +243,7 @@ class CourseCard extends React.Component {
         const semester = this.props.semester;
         const assignments = this.props.assignments;
         const gpa = this.props.gpa.toFixed(2);
-        const comments = this.props.commments;
+        const id = this.props.id;
 
         return (
             <div>
@@ -177,6 +278,7 @@ class CourseCard extends React.Component {
                                                 assignment={data.name}
                                                 description={data.description}
                                                 gpa={data.gpa}
+                                                course_id={id}
                                             />
                                         </div>
                                     );
@@ -198,99 +300,24 @@ class CourseCard extends React.Component {
                     </CardActions>
                 </Card>
 
-                <Dialog
-                    open={this.state.addAssignmentOpen}
-                    onClose={this.handleAddAssignmentClose}
-                >
-                    <DialogTitle>Add Assignment</DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            id="assignmentName"
-                            label="Assignment Name"
-                            value={this.state.assignmentName}
-                            onChange={this.handleChange}
-                            fullWidth
-                            required
-                        />
-                        <TextField
-                            id="assignmentDescription"
-                            label="Description"
-                            value={this.state.assignmentDescription}
-                            onChange={this.handleChange}
-                            fullWidth
-                            multiline={true}
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            onClick={this.handleAddAssignmentClose}
-                            color="primary"
-                            fullWidth
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={this.onAddAssignment}
-                            color="primary"
-                            fullWidth
-                        >
-                            Submit
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-                <Dialog
-                    fullScreen
-                    open={this.state.commentOpen}
-                    onClose={this.handleCommentClose}
-                    TransitionComponent={Transition}
-                >
-                    <AppBar style={{ position: "relative" }}>
-                        <Toolbar>
-                            <IconButton
-                                color="inherit"
-                                onClick={this.handleCommentClose}
-                                aria-label="Close"
-                            >
-                                <CloseIcon />
-                            </IconButton>
-                            <Typography
-                                variant="h6"
-                                color="inherit"
-                                style={{ flex: 1 }}
-                            >
-                                Comments for {name}
-                            </Typography>
-                        </Toolbar>
-                    </AppBar>
-                    <List>
-                        {this.props.comments.map(element => {
-                            return (
-                                <div key={element._id}>
-                                    <ListItem divider={true}>
-                                        <ListItemText
-                                            primary={element.content}
-                                        />
-                                    </ListItem>
-                                </div>
-                            );
-                        })}
-                    </List>
-                    {this.props.isAuth && (
-                        <Paper>
-                            <InputBase
-                                style={{ padding: 16, width: "94%" }}
-                                placeholder="Comment..."
-                                value={this.state.commentContent}
-                                id="commentContent"
-                                onChange={this.handleChange}
-                            />
-                            <IconButton onClick={this.onAddComment}>
-                                <SendIcon />
-                            </IconButton>
-                        </Paper>
-                    )}
-                </Dialog>
-                <Dialog />
+                <AddAssignment
+                    addAssignmentOpen={this.state.addAssignmentOpen}
+                    handleAddAssignmentClose={this.handleAddAssignmentClose}
+                    assignmentName={this.state.assignmentName}
+                    handleChange={this.handleChange}
+                    assignmentDescription={this.state.assignmentDescription}
+                    onAddAssignment={this.onAddAssignment}
+                />
+                <CommentDialog
+                    commentOpen={this.state.commentOpen}
+                    handleCommentClose={this.handleCommentClose}
+                    comments={this.props.comments}
+                    isAuth={this.props.isAuth}
+                    commentContent={this.state.commentContent}
+                    handleChange={this.handleChange}
+                    onAddComment={this.onAddComment}
+                    name={name}
+                />
             </div>
         );
     }

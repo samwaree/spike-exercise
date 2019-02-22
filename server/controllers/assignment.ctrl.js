@@ -68,20 +68,19 @@ module.exports = {
     /**
      * Deletes an assignment
      * @param req.params.id         id of the assignment
-     * @param req.body.course_id    id of the course
      */
     deleteAssignment: (req, res, next) => {
-        Course.findById(req.body.course_id, (err, course) => {
+        Assignment.findById(req.params.id, (err, assignment) => {
             if (err) {
                 res.sendStatus(500);
-            } else if (!course) {
-                res.json("Course does not exist");
+            } else if (!assignment) {
+                res.sendState(400);
             } else {
-                Assignment.findById(req.params.id, (err, assignment) => {
+                Course.findById(assignment.parent, (err, course) => {
                     if (err) {
                         res.sendStatus(500);
-                    } else if (!assignment) {
-                        res.json("Assignment does not exist");
+                    } else if (!course) {
+                        res.sendState(400);
                     } else {
                         course.removeAssignment(
                             assignment,
@@ -99,9 +98,17 @@ module.exports = {
                                             if (err) {
                                                 res.sendStatus(500);
                                             } else {
-                                                updateParentGPA();
-                                                res.json(
-                                                    "Assignment successfully deleted"
+                                                updateParentGPA(
+                                                    assignment.parent,
+                                                    err => {
+                                                        if (err) {
+                                                            res.sendStatus(500);
+                                                        } else {
+                                                            res.json(
+                                                                "Assignment successfully deleted"
+                                                            );
+                                                        }
+                                                    }
                                                 );
                                             }
                                         }

@@ -11,7 +11,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 import {
     rateAssignment,
     loadCourses,
-    editDescription
+    editDescription,
+    deleteAssignment
 } from "../redux/actions/actions";
 import { connect } from "react-redux";
 import mapLetterToGPA from "../utilities/assignment.util";
@@ -39,6 +40,67 @@ const mapStateToProps = state => {
         isAuth: state.user.isAuth
     };
 };
+
+const EditDialog = props => (
+    <Dialog open={props.editOpen} onClose={props.handleEditClose}>
+        <DialogTitle>Edit Assignment</DialogTitle>
+        <DialogContent>
+            <TextField
+                id="editDescription"
+                label="Edit Description"
+                value={props.editDescription}
+                onChange={props.handleChange}
+                fullWidth
+                multiline={true}
+            />
+        </DialogContent>
+        <DialogActions>
+            <Button onClick={props.handleEditClose} color="primary" fullWidth>
+                Cancel
+            </Button>
+            <Button onClick={props.onEditSubmit} color="primary" fullWidth>
+                Submit
+            </Button>
+            <Button onClick={props.onDelete} color="secondary">
+                Delete
+            </Button>
+        </DialogActions>
+    </Dialog>
+);
+
+const RateDialog = props => (
+    <Dialog open={props.rateOpen} onClose={props.handleRateClose}>
+        <DialogTitle>Rate Assignment</DialogTitle>
+        <DialogContent>
+            <TextField
+                id="grade"
+                select
+                label="Select"
+                value={props.grade}
+                onChange={props.handleSelect}
+                fullWidth
+            >
+                {props.options.map(option => (
+                    <MenuItem
+                        id="semesterLabel"
+                        key={option.value}
+                        value={option.label}
+                    >
+                        {option.label}
+                    </MenuItem>
+                ))}
+            </TextField>
+        </DialogContent>
+        <DialogActions>
+            <Button onClick={props.handleRateClose} color="primary" fullWidth>
+                Cancel
+            </Button>
+            <Button onClick={props.onRateSubmit} color="primary" fullWidth>
+                Submit
+            </Button>
+        </DialogActions>
+    </Dialog>
+);
 
 class AssignmentCard extends React.Component {
     constructor(props) {
@@ -126,6 +188,18 @@ class AssignmentCard extends React.Component {
         this.setState({ rateOpen: false });
     };
 
+    onDelete = e => {
+        this.props.deleteAssignment(
+            {
+                assignment_id: this.props.assignment_id
+            },
+            () => {
+                this.handleRateClose();
+                this.props.loadCourses();
+            }
+        );
+    };
+
     onRateSubmit = e => {
         this.props.rateAssignment(
             {
@@ -204,80 +278,22 @@ class AssignmentCard extends React.Component {
                     </Grid>
                 </ListItem>
 
-                <Dialog
-                    open={this.state.rateOpen}
-                    onClose={this.handleRateClose}
-                >
-                    <DialogTitle>Rate Assignment</DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            id="grade"
-                            select
-                            label="Select"
-                            value={this.state.grade}
-                            onChange={this.handleSelect}
-                            fullWidth
-                        >
-                            {this.state.options.map(option => (
-                                <MenuItem
-                                    id="semesterLabel"
-                                    key={option.value}
-                                    value={option.label}
-                                >
-                                    {option.label}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            onClick={this.handleRateClose}
-                            color="primary"
-                            fullWidth
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={this.onRateSubmit}
-                            color="primary"
-                            fullWidth
-                        >
-                            Submit
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-                <Dialog
-                    open={this.state.editOpen}
-                    onClose={this.handleEditClose}
-                >
-                    <DialogTitle>Edit Assignment</DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            id="editDescription"
-                            label="Edit Description"
-                            value={this.state.editDescription}
-                            onChange={this.handleChange}
-                            fullWidth
-                            multiline={true}
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            onClick={this.handleEditClose}
-                            color="primary"
-                            fullWidth
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={this.onEditSubmit}
-                            color="primary"
-                            fullWidth
-                        >
-                            Submit
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+                <RateDialog
+                    rateOpen={this.state.rateOpen}
+                    handleRateClose={this.handleRateClose}
+                    grade={this.state.grade}
+                    handleSelect={this.handleSelect}
+                    options={this.state.options}
+                    onRateSubmit={this.onRateSubmit}
+                />
+                <EditDialog
+                    editOpen={this.state.editOpen}
+                    handleEditClose={this.handleEditClose}
+                    editDescription={this.state.editDescription}
+                    handleChange={this.handleChange}
+                    onEditSubmit={this.onEditSubmit}
+                    onDelete={this.onDelete}
+                />
             </div>
         );
     }
@@ -289,5 +305,5 @@ AssignmentCard.contextTypes = {
 
 export default connect(
     mapStateToProps,
-    { rateAssignment, loadCourses, editDescription }
+    { rateAssignment, loadCourses, editDescription, deleteAssignment }
 )(withStyles(styles)(AssignmentCard));

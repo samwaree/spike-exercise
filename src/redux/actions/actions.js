@@ -123,3 +123,12 @@ export function editDescription(data, callback) {
             });
     };
 }
+
+export function deleteAssignment(data, callback) {
+    return dispatch => {
+        console.log(data);
+        axios.delete(`${url}assignment/${data.assignment_id}`).then(res => {
+            callback();
+        });
+    };
+}
