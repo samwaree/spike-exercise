@@ -79,23 +79,23 @@ class Feed extends Component {
             <main>
                 <div>
                     {this.props.isAuth && (
-                        <Typography
-                            variant="h2"
-                            align="center"
-                            style={{ marginTop: "24px" }}
-                        >
-                            Welcome, {this.props.username}
-                        </Typography>
-                    )}
+                        <div>
+                            <Typography
+                                variant="h2"
+                                align="center"
+                                style={{ marginTop: "24px" }}
+                            >
+                                Welcome, {this.props.username}
+                            </Typography>
 
-                    {this.props.isAuth && (
-                        <Typography
-                            variant="h3"
-                            align="center"
-                            style={{ marginTop: "24px" }}
-                        >
-                            My Courses
-                        </Typography>
+                            <Typography
+                                variant="h3"
+                                align="center"
+                                style={{ marginTop: "24px" }}
+                            >
+                                My Courses
+                            </Typography>
+                        </div>
                     )}
                     <Grid
                         container
@@ -140,49 +140,55 @@ class Feed extends Component {
                             })}
                     </Grid>
                     {this.props.isAuth && (
-                        <Typography
-                            variant="h3"
-                            align="center"
-                            style={{ marginTop: "24px" }}
-                        >
-                            Other Courses
-                        </Typography>
-                    )}
-                    {this.props.isAuth && (
-                        <Grid
-                            container
-                            direction="row"
-                            justify="center"
-                            alignItems="center"
-                            style={{ marginTop: "24px", marginBottom: "24px" }}
-                        >
-                            {this.props.isAuth &&
-                                this.state.nonUserCourses.map(data => {
-                                    return (
-                                        <Grid key={data._id} item>
-                                            <CourseCard
-                                                name={data.name}
-                                                semester={data.semester}
-                                                assignments={data.assignments}
-                                                gpa={data.gpa}
-                                                id={data._id}
-                                                comments={data.comments}
-                                                updateUserCourses={
-                                                    this.updateUserCourses
-                                                }
-                                                isUserCourse={false}
-                                            />
-                                        </Grid>
-                                    );
-                                })}
-                            {this.props.isAuth && (
-                                <Grid item>
-                                    <IconButton onClick={this.onAdd}>
-                                        <AddIcon />
-                                    </IconButton>
-                                </Grid>
-                            )}
-                        </Grid>
+                        <div>
+                            <Typography
+                                variant="h3"
+                                align="center"
+                                style={{ marginTop: "24px" }}
+                            >
+                                Other Courses
+                            </Typography>
+
+                            <Grid
+                                container
+                                direction="row"
+                                justify="center"
+                                alignItems="center"
+                                style={{
+                                    marginTop: "24px",
+                                    marginBottom: "24px"
+                                }}
+                            >
+                                {this.props.isAuth &&
+                                    this.state.nonUserCourses.map(data => {
+                                        return (
+                                            <Grid key={data._id} item>
+                                                <CourseCard
+                                                    name={data.name}
+                                                    semester={data.semester}
+                                                    assignments={
+                                                        data.assignments
+                                                    }
+                                                    gpa={data.gpa}
+                                                    id={data._id}
+                                                    comments={data.comments}
+                                                    updateUserCourses={
+                                                        this.updateUserCourses
+                                                    }
+                                                    isUserCourse={false}
+                                                />
+                                            </Grid>
+                                        );
+                                    })}
+                                {this.props.isAuth && (
+                                    <Grid item>
+                                        <IconButton onClick={this.onAdd}>
+                                            <AddIcon />
+                                        </IconButton>
+                                    </Grid>
+                                )}
+                            </Grid>
+                        </div>
                     )}
                 </div>
             </main>

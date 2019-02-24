@@ -8,7 +8,6 @@ import SignUp from "./components/SignUp";
 import CreateCourse from "./components/CreateCourse";
 import { withStyles } from "@material-ui/core/styles";
 import styles from "./styles.css";
-import Profile from "./components/Profile";
 
 class App extends Component {
     render() {
@@ -24,7 +23,6 @@ class App extends Component {
                         path="/createcourse"
                         component={CreateCourse}
                     />
-                    <Route exact path="/profile" component={Profile} />
                 </Switch>
             </div>
         );
