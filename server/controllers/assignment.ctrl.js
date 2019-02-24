@@ -14,7 +14,11 @@ function updateParentGPA(course_id, callback) {
                     count++;
                 }
             });
-            course.gpa = sum / count;
+            if (count === 0) {
+                course.gpa = 0;
+            } else {
+                course.gpa = sum / count;
+            }
             course.save((err, newCourse) => {
                 if (err) {
                     return callback(err);
@@ -42,7 +46,7 @@ module.exports = {
                 var assignment = new Assignment({
                     name: req.body.name,
                     description: req.body.description,
-                    parent: course
+                    parent: course._id
                 });
 
                 assignment.save((err, newAssignment) => {
@@ -74,7 +78,7 @@ module.exports = {
             if (err) {
                 res.sendStatus(500);
             } else if (!assignment) {
-                res.sendState(400);
+                res.sendStatus(400);
             } else {
                 Course.findById(assignment.parent, (err, course) => {
                     if (err) {
@@ -148,6 +152,7 @@ module.exports = {
      * Adds a rating for the assignment and updates GPA
      * @param req.params.id     id of the assignment
      * @param req.body.rating   rating of the assignment
+     * @param req.body.description description of rating
      */
     rate: (req, res, next) => {
         Assignment.findById(req.params.id, (err, assignment) => {
@@ -156,25 +161,31 @@ module.exports = {
             } else if (!assignment) {
                 res.sendStatus(400);
             } else {
-                assignment.addRating(req.body.rating, err => {
-                    if (err) {
-                        res.sendStatus(500);
-                    } else {
-                        assignment.updateGPA(err => {
-                            if (err) {
-                                res.sendStatus(500);
-                            } else {
-                                updateParentGPA(assignment.parent, err => {
-                                    if (err) {
-                                        res.sendStatus(500);
-                                    } else {
-                                        res.send(assignment);
-                                    }
-                                });
-                            }
-                        });
+                assignment.addRating(
+                    {
+                        number: req.body.rating,
+                        description: req.body.description
+                    },
+                    err => {
+                        if (err) {
+                            res.sendStatus(500);
+                        } else {
+                            assignment.updateGPA(err => {
+                                if (err) {
+                                    res.sendStatus(500);
+                                } else {
+                                    updateParentGPA(assignment.parent, err => {
+                                        if (err) {
+                                            res.sendStatus(500);
+                                        } else {
+                                            res.send(assignment);
+                                        }
+                                    });
+                                }
+                            });
+                        }
                     }
-                });
+                );
             }
         });
     }

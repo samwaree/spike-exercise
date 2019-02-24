@@ -4,7 +4,7 @@ import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
-import InsertCommentIcon from "@material-ui/icons/InsertComment";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
 import AddIcon from "@material-ui/icons/Add";
 import CardActions from "@material-ui/core/CardActions";
 import ExpansionPanel from "@material-ui/core/ExpansionPanel";
@@ -13,18 +13,21 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { withStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
 import AssignmentCard from "./AssignmentCard";
-import EditIcon from "@material-ui/icons/Edit";
+import MenuItem from "@material-ui/core/MenuItem";
 import List from "@material-ui/core/List";
+import Menu from "@material-ui/core/Menu";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+//import MoreVertIcon from "@material-ui/icons/MoreVert";
 import {
     createAssignment,
     loadCourses,
-    comment
+    comment,
+    addCourse
 } from "../redux/actions/actions";
 import Slide from "@material-ui/core/Slide";
 import AppBar from "@material-ui/core/AppBar";
@@ -54,6 +57,7 @@ const styles = theme => ({
 const mapStateToProps = state => {
     return {
         isAuth: state.user.isAuth,
+        user_courses: state.user.user.courses,
         user_id: state.user.user._id
     };
 };
@@ -172,7 +176,9 @@ class CourseCard extends React.Component {
             commentOpen: false,
             assignmentName: "",
             assignmentDescription: "",
-            commentContent: ""
+            commentContent: "",
+            menuOpen: "",
+            anchorEl: null
         };
     }
 
@@ -200,6 +206,14 @@ class CourseCard extends React.Component {
         });
     };
 
+    handleMenuOpen = e => {
+        this.setState({ menuOpen: true, anchorEl: e.currentTarget });
+    };
+
+    handleMenuClose = e => {
+        this.setState({ menuOpen: false });
+    };
+
     handleChange = e => {
         this.setState({
             [e.target.id]: e.target.value
@@ -215,7 +229,25 @@ class CourseCard extends React.Component {
             },
             () => {
                 this.handleAddAssignmentClose();
-                this.props.loadCourses();
+                this.props.loadCourses(() => {
+                    this.props.updateUserCourses();
+                });
+            }
+        );
+        e.preventDefault();
+    };
+
+    onSaveCourse = e => {
+        this.props.addCourse(
+            {
+                user_id: this.props.user_id,
+                course_id: this.props.id
+            },
+            () => {
+                this.handleMenuClose();
+                this.props.loadCourses(() => {
+                    this.props.updateUserCourses();
+                });
             }
         );
         e.preventDefault();
@@ -233,7 +265,9 @@ class CourseCard extends React.Component {
                 this.setState({
                     commentContent: ""
                 });
-                this.props.loadCourses();
+                this.props.loadCourses(() => {
+                    this.props.updateUserCourses();
+                });
             }
         );
     };
@@ -253,9 +287,25 @@ class CourseCard extends React.Component {
                         title={name}
                         subheader={semester}
                         action={
-                            <IconButton onClick={this.handleCommentOpen}>
-                                <InsertCommentIcon />
-                            </IconButton>
+                            <div>
+                                <IconButton onClick={this.handleMenuOpen}>
+                                    <MoreVertIcon />
+                                </IconButton>
+                                <Menu
+                                    open={this.state.menuOpen}
+                                    onClose={this.handleMenuClose}
+                                    anchorEl={this.state.anchorEl}
+                                >
+                                    {this.props.isAuth && (
+                                        <MenuItem onClick={this.onSaveCourse}>
+                                            Save Assignment to 'My Courses'
+                                        </MenuItem>
+                                    )}
+                                    <MenuItem onClick={this.handleCommentOpen}>
+                                        View Comments
+                                    </MenuItem>
+                                </Menu>
+                            </div>
                         }
                     />
                     <CardContent>
@@ -277,8 +327,12 @@ class CourseCard extends React.Component {
                                                 assignment_id={data._id}
                                                 assignment={data.name}
                                                 description={data.description}
+                                                ratings={data.ratings}
                                                 gpa={data.gpa}
                                                 course_id={id}
+                                                updateUserCourses={
+                                                    this.props.updateUserCourses
+                                                }
                                             />
                                         </div>
                                     );
@@ -291,9 +345,6 @@ class CourseCard extends React.Component {
                                     onClick={this.handleAddAssignmentOpen}
                                 >
                                     <AddIcon />
-                                </IconButton>
-                                <IconButton>
-                                    <EditIcon />
                                 </IconButton>
                             </div>
                         )}
@@ -325,5 +376,5 @@ class CourseCard extends React.Component {
 
 export default connect(
     mapStateToProps,
-    { createAssignment, loadCourses, comment }
+    { createAssignment, loadCourses, comment, addCourse }
 )(withStyles(styles)(CourseCard));

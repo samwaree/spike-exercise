@@ -73,7 +73,6 @@ module.exports = {
                         } else if (!isMatch) {
                             res.sendStatus(400);
                         } else {
-                            console.log("Got User");
                             res.send(user);
                         }
                     });
@@ -166,11 +165,11 @@ module.exports = {
     },
     /**
      * Adds a course to a users course list
-     * @param req.body.user_id      user id of user
+     * @param req.params.id         user id of user
      * @param req.body.course_id    course id
      */
     addCourse: (req, res, next) => {
-        User.findById(req.body.user_id, (err, user) => {
+        User.findById(req.params.id, (err, user) => {
             if (err) {
                 res.sendStatus(500);
             } else if (!user) {

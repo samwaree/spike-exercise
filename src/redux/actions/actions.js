@@ -2,13 +2,14 @@ import axios from "axios";
 
 const url = "http://localhost:8080/api/";
 
-export function loadCourses() {
+export function loadCourses(callback) {
     return dispatch => {
         axios
             .get(`${url}courses`)
             .then(res => {
                 let courses = res.data;
                 dispatch({ type: "LOAD_COURSES", courses });
+                callback();
             })
             .catch(err => {
                 console.log(err);
@@ -75,7 +76,8 @@ export function rateAssignment(assignment_data, callback) {
         let assignment_id = assignment_data.id;
         axios
             .post(`${url}assignment/${assignment_id}/rate`, {
-                rating: assignment_data.rating
+                rating: assignment_data.rating,
+                description: assignment_data.description
             })
             .then(res => {
                 callback();
@@ -126,9 +128,19 @@ export function editDescription(data, callback) {
 
 export function deleteAssignment(data, callback) {
     return dispatch => {
-        console.log(data);
         axios.delete(`${url}assignment/${data.assignment_id}`).then(res => {
             callback();
         });
+    };
+}
+
+export function addCourse(data, callback) {
+    return dispatch => {
+        console.log(data);
+        axios
+            .post(`${url}user/${data.user_id}/addcourse`, {
+                course_id: data.course_id
+            })
+            .then(callback());
     };
 }

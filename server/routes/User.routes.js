@@ -13,5 +13,5 @@ module.exports = router => {
 
     router.route("/user/removecourse").post(User.removeCourse);
 
-    router.route("/user/addcourse").post(User.addCourse);
+    router.route("/user/:id/addcourse").post(User.addCourse);
 };

@@ -71,6 +71,7 @@ class NavBar extends React.Component {
                                     style={{ cursor: "pointer" }}
                                     variant="title"
                                     color="inherit"
+                                    align="justify"
                                 >
                                     UW Rate 'Em
                                 </Typography>

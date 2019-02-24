@@ -8,6 +8,8 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
+import List from "@material-ui/core/List";
+import Menu from "@material-ui/core/Menu";
 import {
     rateAssignment,
     loadCourses,
@@ -20,20 +22,21 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import EditIcon from "@material-ui/icons/Edit";
-import Paper from "@material-ui/core/Paper";
-
-import {
-    Typography,
-    ListItem,
-    ListItemText,
-    ListItemSecondaryAction
-} from "@material-ui/core";
+import Slide from "@material-ui/core/Slide";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import CloseIcon from "@material-ui/icons/Close";
+import { Typography, ListItem, ListItemText } from "@material-ui/core";
 
 const styles = theme => ({
     main: {
         maxWidth: 400
     }
 });
+
+function Transition(props) {
+    return <Slide direction="up" {...props} />;
+}
 
 const mapStateToProps = state => {
     return {
@@ -90,6 +93,14 @@ const RateDialog = props => (
                     </MenuItem>
                 ))}
             </TextField>
+            <TextField
+                id="rateFeedback"
+                label="Rating Feedback"
+                value={props.rateFeedback}
+                onChange={props.handleChange}
+                fullWidth
+                multiline={true}
+            />
         </DialogContent>
         <DialogActions>
             <Button onClick={props.handleRateClose} color="primary" fullWidth>
@@ -99,6 +110,54 @@ const RateDialog = props => (
                 Submit
             </Button>
         </DialogActions>
+    </Dialog>
+);
+
+const ViewRatingsDialog = props => (
+    <Dialog
+        open={props.viewRateOpen}
+        onClose={props.handleViewRateClose}
+        fullScreen
+        TransitionComponent={Transition}
+    >
+        <AppBar
+            style={{
+                position: "relative"
+            }}
+        >
+            <Toolbar>
+                <IconButton
+                    color="inherit"
+                    onClick={props.handleViewRateClose}
+                    aria-label="Close"
+                >
+                    <CloseIcon />
+                </IconButton>
+                <Typography
+                    variant="h6"
+                    color="inherit"
+                    style={{
+                        flex: 1
+                    }}
+                >
+                    Ratings for {props.assignment}
+                </Typography>
+            </Toolbar>
+        </AppBar>
+        <List>
+            {props.ratings.map(element => {
+                return (
+                    <div key={element._id}>
+                        <ListItem divider={true}>
+                            <ListItemText
+                                primary={element.number}
+                                secondary={element.description}
+                            />
+                        </ListItem>
+                    </div>
+                );
+            })}
+        </List>
     </Dialog>
 );
 
@@ -155,8 +214,12 @@ class AssignmentCard extends React.Component {
             ],
             rateOpen: false,
             editOpen: false,
+            viewRateOpen: false,
+            rateMenuOpen: false,
             editDescription: "",
-            grade: ""
+            anchorEl: null,
+            grade: "",
+            rateFeedback: ""
         };
     }
 
@@ -188,6 +251,22 @@ class AssignmentCard extends React.Component {
         this.setState({ rateOpen: false });
     };
 
+    handleViewRateOpen = () => {
+        this.setState({ viewRateOpen: true });
+    };
+
+    handleViewRateClose = () => {
+        this.setState({ viewRateOpen: false });
+    };
+
+    handleRateMenuOpen = e => {
+        this.setState({ rateMenuOpen: true, anchorEl: e.currentTarget });
+    };
+
+    handleRateMenuClose = () => {
+        this.setState({ rateMenuOpen: false });
+    };
+
     onDelete = e => {
         this.props.deleteAssignment(
             {
@@ -195,7 +274,9 @@ class AssignmentCard extends React.Component {
             },
             () => {
                 this.handleRateClose();
-                this.props.loadCourses();
+                this.props.loadCourses(() => {
+                    this.props.updateUserCourses();
+                });
             }
         );
     };
@@ -204,11 +285,14 @@ class AssignmentCard extends React.Component {
         this.props.rateAssignment(
             {
                 id: this.props.assignment_id,
-                rating: mapLetterToGPA(this.state.grade)
+                rating: mapLetterToGPA(this.state.grade),
+                description: this.state.rateFeedback
             },
             () => {
                 this.handleRateClose();
-                this.props.loadCourses();
+                this.props.loadCourses(() => {
+                    this.props.updateUserCourses();
+                });
             }
         );
         e.preventDefault();
@@ -225,7 +309,9 @@ class AssignmentCard extends React.Component {
                 this.setState({
                     editDescription: ""
                 });
-                this.props.loadCourses();
+                this.props.loadCourses(() => {
+                    this.props.updateUserCourses();
+                });
             }
         );
         e.preventDefault();
@@ -259,7 +345,9 @@ class AssignmentCard extends React.Component {
                                     <Grid style={{ width: "flex" }}>
                                         <Grid item>
                                             <IconButton
-                                                onClick={this.handleRateOpen}
+                                                onClick={
+                                                    this.handleRateMenuOpen
+                                                }
                                             >
                                                 <StarRateIcon fontSize="small" />
                                             </IconButton>
@@ -272,6 +360,20 @@ class AssignmentCard extends React.Component {
                                             </IconButton>
                                         </Grid>
                                     </Grid>
+                                    <Menu
+                                        open={this.state.rateMenuOpen}
+                                        onClose={this.handleRateMenuClose}
+                                        anchorEl={this.state.anchorEl}
+                                    >
+                                        <MenuItem onClick={this.handleRateOpen}>
+                                            Rate Assignment
+                                        </MenuItem>
+                                        <MenuItem
+                                            onClick={this.handleViewRateOpen}
+                                        >
+                                            View Ratings
+                                        </MenuItem>
+                                    </Menu>
                                 </div>
                             )}
                         </Grid>
@@ -283,8 +385,10 @@ class AssignmentCard extends React.Component {
                     handleRateClose={this.handleRateClose}
                     grade={this.state.grade}
                     handleSelect={this.handleSelect}
+                    handleChange={this.handleChange}
                     options={this.state.options}
                     onRateSubmit={this.onRateSubmit}
+                    rateFeedback={this.state.rateFeedback}
                 />
                 <EditDialog
                     editOpen={this.state.editOpen}
@@ -293,6 +397,12 @@ class AssignmentCard extends React.Component {
                     handleChange={this.handleChange}
                     onEditSubmit={this.onEditSubmit}
                     onDelete={this.onDelete}
+                />
+                <ViewRatingsDialog
+                    viewRateOpen={this.state.viewRateOpen}
+                    handleViewRateClose={this.handleViewRateClose}
+                    assignment={this.props.assignment}
+                    ratings={this.props.ratings}
                 />
             </div>
         );
