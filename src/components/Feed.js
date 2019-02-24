@@ -3,12 +3,11 @@ import { connect } from "react-redux";
 import { loadCourses } from "../redux/actions/actions";
 import CourseCard from "./CourseCard";
 import Grid from "@material-ui/core/Grid";
-import { withStyles } from "@material-ui/core/styles";
+import mapSemesterToNumber from "../utilities/semester.util";
 import IconButton from "@material-ui/core/IconButton";
 import AddIcon from "@material-ui/icons/Add";
 import PropTypes from "prop-types";
 import Typography from "@material-ui/core/Typography";
-import Paper from "@material-ui/core/Paper";
 
 const mapStateToProps = state => {
     return {
@@ -18,39 +17,6 @@ const mapStateToProps = state => {
         user_courses: state.user.user.courses
     };
 };
-
-const styles = theme => ({
-    main: {
-        width: "auto",
-        display: "block", // Fix IE 11 issue.
-        marginLeft: theme.spacing.unit * 3,
-        marginRight: theme.spacing.unit * 3,
-        [theme.breakpoints.up(400 + theme.spacing.unit * 3 * 2)]: {
-            width: 400,
-            marginLeft: "auto",
-            marginRight: "auto"
-        }
-    },
-    paper: {
-        marginTop: theme.spacing.unit * 8,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit *
-            3}px ${theme.spacing.unit * 3}px`
-    },
-    avatar: {
-        margin: theme.spacing.unit,
-        backgroundColor: theme.palette.secondary.main
-    },
-    form: {
-        width: "100%", // Fix IE 11 issue.
-        marginTop: theme.spacing.unit
-    },
-    submit: {
-        marginTop: theme.spacing.unit * 3
-    }
-});
 
 class Feed extends Component {
     constructor(props) {
@@ -90,6 +56,18 @@ class Feed extends Component {
             });
             return isFound;
         });
+        userCourses.sort((a, b) => {
+            return (
+                mapSemesterToNumber(a.semester) -
+                mapSemesterToNumber(b.semester)
+            );
+        });
+        nonUserCourses.sort((a, b) => {
+            return (
+                mapSemesterToNumber(a.semester) -
+                mapSemesterToNumber(b.semester)
+            );
+        });
         this.setState({
             nonUserCourses: nonUserCourses,
             userCourses: userCourses
@@ -98,67 +76,86 @@ class Feed extends Component {
 
     render() {
         return (
-            <main className={this.props.main}>
-                <Paper
-                    style={{
-                        margin: "auto",
-                        marginTop: "32px",
-                        minHeight: "86vh",
-                        maxWidth: "70vw",
-                        textalign: "center"
-                    }}
-                >
-                    <div>
-                        {this.props.isAuth && (
-                            <Typography
-                                variant="h2"
-                                align="center"
-                                style={{ padding: "8px" }}
-                            >
-                                Welcome, {this.props.username}
-                            </Typography>
-                        )}
+            <main>
+                <div>
+                    {this.props.isAuth && (
+                        <Typography
+                            variant="h2"
+                            align="center"
+                            style={{ marginTop: "24px" }}
+                        >
+                            Welcome, {this.props.username}
+                        </Typography>
+                    )}
 
+                    {this.props.isAuth && (
+                        <Typography
+                            variant="h3"
+                            align="center"
+                            style={{ marginTop: "24px" }}
+                        >
+                            My Courses
+                        </Typography>
+                    )}
+                    <Grid
+                        container
+                        direction="row"
+                        justify="center"
+                        alignItems="center"
+                        style={{ marginTop: "24px", marginBottom: "24px" }}
+                    >
+                        {!this.props.isAuth &&
+                            this.props.courses.map(data => {
+                                return (
+                                    <Grid key={data._id} item>
+                                        <CourseCard
+                                            name={data.name}
+                                            semester={data.semester}
+                                            assignments={data.assignments}
+                                            gpa={data.gpa}
+                                            id={data._id}
+                                            comments={data.comments}
+                                        />
+                                    </Grid>
+                                );
+                            })}
+                        {this.props.isAuth &&
+                            this.state.userCourses.map(data => {
+                                return (
+                                    <Grid key={data._id} item>
+                                        <CourseCard
+                                            name={data.name}
+                                            semester={data.semester}
+                                            assignments={data.assignments}
+                                            gpa={data.gpa}
+                                            id={data._id}
+                                            comments={data.comments}
+                                            updateUserCourses={
+                                                this.updateUserCourses
+                                            }
+                                            isUserCourse={true}
+                                        />
+                                    </Grid>
+                                );
+                            })}
+                    </Grid>
+                    {this.props.isAuth && (
+                        <Typography
+                            variant="h3"
+                            align="center"
+                            style={{ marginTop: "24px" }}
+                        >
+                            Other Courses
+                        </Typography>
+                    )}
+                    {this.props.isAuth && (
                         <Grid
                             container
                             direction="row"
                             justify="center"
                             alignItems="center"
-                            spacing={16}
+                            style={{ marginTop: "24px", marginBottom: "24px" }}
                         >
-                            {!this.props.isAuth &&
-                                this.props.courses.map(data => {
-                                    return (
-                                        <Grid key={data._id} item>
-                                            <CourseCard
-                                                name={data.name}
-                                                semester={data.semester}
-                                                assignments={data.assignments}
-                                                gpa={data.gpa}
-                                                id={data._id}
-                                                comments={data.comments}
-                                            />
-                                        </Grid>
-                                    );
-                                })}
-                            {this.props.isAuth &&
-                                this.state.userCourses.map(data => {
-                                    return (
-                                        <Grid key={data._id} item>
-                                            <CourseCard
-                                                name={data.name}
-                                                semester={data.semester}
-                                                assignments={data.assignments}
-                                                gpa={data.gpa}
-                                                id={data._id}
-                                                comments={data.comments}
-                                                updateUserCourses={
-                                                    this.updateUserCourses
-                                                }
-                                            />
-                                        </Grid>
-                                    );
-                                })}
                             {this.props.isAuth &&
                                 this.state.nonUserCourses.map(data => {
                                     return (
@@ -173,6 +170,7 @@ class Feed extends Component {
                                                 updateUserCourses={
                                                     this.updateUserCourses
                                                 }
+                                                isUserCourse={false}
                                             />
                                         </Grid>
                                     );
@@ -185,8 +183,8 @@ class Feed extends Component {
                                 </Grid>
                             )}
                         </Grid>
-                    </div>
-                </Paper>
+                    )}
+                </div>
             </main>
         );
     }
@@ -199,4 +197,4 @@ Feed.contextTypes = {
 export default connect(
     mapStateToProps,
     { loadCourses }
-)(withStyles(styles)(Feed));
+)(Feed);

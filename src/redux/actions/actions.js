@@ -24,8 +24,8 @@ export function createCourse(course_data, callback) {
             .post(`${url}course`, course_data)
             .then(res => {
                 let course = res.data;
-                callback();
                 dispatch({ type: "ADD_COURSE", course });
+                callback();
             })
             .catch(err => {
                 console.log(err);
@@ -136,11 +136,63 @@ export function deleteAssignment(data, callback) {
 
 export function addCourse(data, callback) {
     return dispatch => {
-        console.log(data);
         axios
             .post(`${url}user/${data.user_id}/addcourse`, {
                 course_id: data.course_id
             })
-            .then(callback());
+            .then(res => {
+                callback();
+            });
+    };
+}
+
+export function removeCourse(data, callback) {
+    return dispatch => {
+        axios
+            .post(`${url}user/${data.user_id}/removecourse`, {
+                course_id: data.course_id
+            })
+            .then(res => {
+                callback();
+            });
+    };
+}
+
+export function loadUser(data, callback) {
+    return dispatch => {
+        axios.get(`${url}user/${data.user_id}`).then(res => {
+            let user = res.data;
+            dispatch({ type: "SET_USER", user });
+            callback();
+        });
+    };
+}
+
+export function updateUsername(data, callback) {
+    return dispatch => {
+        axios
+            .post(`${url}user/${data.user_id}/updateusr`, {
+                newUsername: data.newUsername
+            })
+            .then(res => {
+                callback();
+            });
+    };
+}
+
+export function updatePassword(data, callback) {
+    return dispatch => {
+        axios
+            .post(`${url}user/${data.user_id}/updatepass`, {
+                oldPassword: data.oldPassword,
+                newPassword1: data.newPassword,
+                newPassword2: data.newPasswordConfirm
+            })
+            .then(res => {
+                callback(null);
+            })
+            .catch(err => {
+                callback(err);
+            });
     };
 }

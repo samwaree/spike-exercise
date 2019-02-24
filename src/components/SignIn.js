@@ -102,7 +102,6 @@ class SignIn extends React.Component {
         return (
             <main className={classes.main}>
                 {this.renderRedirect()}
-                <CssBaseline />
                 <Paper className={classes.paper}>
                     <Avatar className={classes.avatar}>
                         <LockOutlinedIcon />

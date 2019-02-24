@@ -27,7 +27,9 @@ import {
     createAssignment,
     loadCourses,
     comment,
-    addCourse
+    addCourse,
+    loadUser,
+    removeCourse
 } from "../redux/actions/actions";
 import Slide from "@material-ui/core/Slide";
 import AppBar from "@material-ui/core/AppBar";
@@ -245,12 +247,41 @@ class CourseCard extends React.Component {
             },
             () => {
                 this.handleMenuClose();
-                this.props.loadCourses(() => {
-                    this.props.updateUserCourses();
-                });
+                this.props.loadUser(
+                    {
+                        user_id: this.props.user_id
+                    },
+                    () => {
+                        this.props.loadCourses(() => {
+                            this.props.updateUserCourses();
+                        });
+                    }
+                );
             }
         );
         e.preventDefault();
+    };
+
+    onRemoveCourse = e => {
+        this.props.removeCourse(
+            {
+                user_id: this.props.user_id,
+                course_id: this.props.id
+            },
+            () => {
+                this.handleMenuClose();
+                this.props.loadUser(
+                    {
+                        user_id: this.props.user_id
+                    },
+                    () => {
+                        this.props.loadCourses(() => {
+                            this.props.updateUserCourses();
+                        });
+                    }
+                );
+            }
+        );
     };
 
     onAddComment = e => {
@@ -281,7 +312,7 @@ class CourseCard extends React.Component {
 
         return (
             <div>
-                <Card style={{ maxWidth: 440 }}>
+                <Card style={{ width: "20vw", margin: "8px" }}>
                     <CardHeader
                         className={this.props.heading}
                         title={name}
@@ -296,11 +327,23 @@ class CourseCard extends React.Component {
                                     onClose={this.handleMenuClose}
                                     anchorEl={this.state.anchorEl}
                                 >
-                                    {this.props.isAuth && (
-                                        <MenuItem onClick={this.onSaveCourse}>
-                                            Save Assignment to 'My Courses'
-                                        </MenuItem>
-                                    )}
+                                    {this.props.isAuth &&
+                                        !this.props.isUserCourse && (
+                                            <MenuItem
+                                                onClick={this.onSaveCourse}
+                                            >
+                                                Save Course to 'My Courses'
+                                            </MenuItem>
+                                        )}
+                                    {this.props.isAuth &&
+                                        this.props.isUserCourse && (
+                                            <MenuItem
+                                                onClick={this.onRemoveCourse}
+                                            >
+                                                Remove Assignment to 'My
+                                                Courses'
+                                            </MenuItem>
+                                        )}
                                     <MenuItem onClick={this.handleCommentOpen}>
                                         View Comments
                                     </MenuItem>
@@ -313,7 +356,7 @@ class CourseCard extends React.Component {
                     </CardContent>
 
                     <CardActions>
-                        <ExpansionPanel style={{ maxWidth: 320 }}>
+                        <ExpansionPanel style={{ width: "16.5vw" }}>
                             <ExpansionPanelSummary
                                 expandIcon={<ExpandMoreIcon />}
                             >
@@ -376,5 +419,12 @@ class CourseCard extends React.Component {
 
 export default connect(
     mapStateToProps,
-    { createAssignment, loadCourses, comment, addCourse }
+    {
+        createAssignment,
+        loadCourses,
+        comment,
+        addCourse,
+        loadUser,
+        removeCourse
+    }
 )(withStyles(styles)(CourseCard));

@@ -6,19 +6,14 @@ import NavBar from "./components/NavBar";
 import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import CreateCourse from "./components/CreateCourse";
+import { withStyles } from "@material-ui/core/styles";
+import styles from "./styles.css";
+import Profile from "./components/Profile";
 
 class App extends Component {
     render() {
         return (
-            <div
-                style={{
-                    height: "100vh",
-                    width: "100vw",
-                    margin: "0",
-                    padding: "0",
-                    backgroundColor: "gray"
-                }}
-            >
+            <div className="styles">
                 <NavBar />
                 <Switch>
                     <Route exact path="/" component={Feed} />
@@ -29,10 +24,11 @@ class App extends Component {
                         path="/createcourse"
                         component={CreateCourse}
                     />
+                    <Route exact path="/profile" component={Profile} />
                 </Switch>
             </div>
         );
     }
 }
 
-export default App;
+export default withStyles(styles)(App);

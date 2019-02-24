@@ -9,7 +9,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
 import Button from "@material-ui/core/Button";
-import { createCourse } from "../redux/actions/actions";
+import { createCourse, loadCourses, loadUser } from "../redux/actions/actions";
 import PropTypes from "prop-types";
 
 const styles = theme => ({
@@ -128,6 +128,7 @@ class CreateCourse extends React.Component {
             name: e.target.value
         });
     };
+
     onSubmit = e => {
         if (!this.props.isAuth) {
             this.context.router.history.push("/login");
@@ -139,6 +140,9 @@ class CreateCourse extends React.Component {
                     semester: this.state.semesterLabel
                 },
                 () => {
+                    this.props.loadUser({
+                        user_id: this.props.user_id
+                    });
                     this.setState({
                         redirect: true
                     });
@@ -215,5 +219,5 @@ CreateCourse.contextTypes = {
 
 export default connect(
     mapStateToProps,
-    { createCourse }
+    { createCourse, loadCourses, loadUser }
 )(withStyles(styles)(CreateCourse));

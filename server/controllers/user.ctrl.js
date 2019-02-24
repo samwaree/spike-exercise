@@ -79,6 +79,19 @@ module.exports = {
                 }
             });
     },
+    getUserByID: (req, res, next) => {
+        User.findById(req.params.id)
+            .populate("courses")
+            .exec((err, user) => {
+                if (err) {
+                    res.sendStatus(500);
+                } else if (!user) {
+                    res.sendStatus(400);
+                } else {
+                    res.send(user);
+                }
+            });
+    },
     /**
      * Update password of user
      * @param req.params.id         id of user
@@ -119,7 +132,6 @@ module.exports = {
     /**
      * Updates the username of a user
      * @param req.params.id         id of user
-     * @param req.body.password     Password of user
      * @param req.body.newUsername  New username of user
      */
     updateUsername: (req, res, next) => {
@@ -129,37 +141,26 @@ module.exports = {
             } else if (!user) {
                 res.sendStatus(400);
             } else {
-                user.comparePassword(req.body.password, (err, isMatch) => {
-                    if (err) {
-                        res.sendStatus(500);
-                    } else if (!isMatch) {
-                        res.sendStatus(400);
-                    } else {
-                        User.findOne(
-                            { username: req.body.newUsername },
-                            (err, newUser) => {
+                User.findOne(
+                    { username: req.body.newUsername },
+                    (err, newUser) => {
+                        if (err) {
+                            res.sendStatus(500);
+                        } else if (newUser) {
+                            res.sendStatus(400);
+                        } else {
+                            user.username = req.body.newUsername;
+
+                            user.save((err, user) => {
                                 if (err) {
                                     res.sendStatus(500);
-                                } else if (newUser) {
-                                    console.log(
-                                        "Username already exists:",
-                                        req.body.newUsername
-                                    );
-                                    res.sendStatus(400);
                                 } else {
-                                    user.username = req.body.newUsername;
-                                    user.save(err => {
-                                        if (err) {
-                                            res.sendStatus(500);
-                                        } else {
-                                            res.send(user);
-                                        }
-                                    });
+                                    res.send(user);
                                 }
-                            }
-                        );
+                            });
+                        }
                     }
-                });
+                );
             }
         });
     },
@@ -197,11 +198,11 @@ module.exports = {
     },
     /**
      * Removes a course from a users course list
-     * @param req.body.user_id id of the user
+     * @param req.params.id id of the user
      * @param req.body.course_id id of the course
      */
     removeCourse: (req, res, next) => {
-        User.findById(req.body.user_id, (err, user) => {
+        User.findById(req.params.id, (err, user) => {
             if (err) {
                 res.sendStatus(500);
             } else if (!user) {
