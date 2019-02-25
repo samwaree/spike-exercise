@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { CssBaseline, withStyles } from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
@@ -140,12 +140,16 @@ class CreateCourse extends React.Component {
                     semester: this.state.semesterLabel
                 },
                 () => {
-                    this.props.loadUser({
-                        user_id: this.props.user_id
-                    });
-                    this.setState({
-                        redirect: true
-                    });
+                    this.props.loadUser(
+                        {
+                            user_id: this.props.user_id
+                        },
+                        () => {
+                            this.setState({
+                                redirect: true
+                            });
+                        }
+                    );
                 }
             );
             e.preventDefault();

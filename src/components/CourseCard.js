@@ -356,7 +356,7 @@ class CourseCard extends React.Component {
                     </CardContent>
 
                     <CardActions>
-                        <ExpansionPanel style={{ width: "16.5vw" }}>
+                        <ExpansionPanel style={{ width: "17vw" }}>
                             <ExpansionPanelSummary
                                 expandIcon={<ExpandMoreIcon />}
                             >

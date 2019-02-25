@@ -8,8 +8,6 @@ import * as serviceWorker from "./serviceWorker";
 import { store, history } from "./redux/store";
 import "typeface-roboto";
 
-window.store = store;
-
 ReactDOM.render(
     <Provider store={store}>
         <ConnectedRouter history={history}>

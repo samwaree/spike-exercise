@@ -26,7 +26,12 @@ import Slide from "@material-ui/core/Slide";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import CloseIcon from "@material-ui/icons/Close";
-import { Typography, ListItem, ListItemText } from "@material-ui/core";
+import {
+    Typography,
+    ListItem,
+    ListItemText,
+    ListItemSecondaryAction
+} from "@material-ui/core";
 
 const styles = theme => ({
     main: {
@@ -316,6 +321,7 @@ class AssignmentCard extends React.Component {
         );
         e.preventDefault();
     };
+
     render() {
         const assignment = this.props.assignment;
         const description = this.props.description;
@@ -326,40 +332,32 @@ class AssignmentCard extends React.Component {
                     <Grid
                         justify="space-between" // Add it here :)
                         container
-                        spacing={0}
+                        spacing={4}
                     >
                         <Grid
                             item
                             style={{
-                                maxWidth: "82%"
+                                maxWidth: "65%"
                             }}
                         >
                             <ListItemText
                                 primary={assignment}
                                 secondary={description}
                             />
-                        </Grid>
-                        <Grid item>
                             {this.props.isAuth && (
                                 <div>
-                                    <Grid style={{ width: "flex" }}>
-                                        <Grid item>
-                                            <IconButton
-                                                onClick={
-                                                    this.handleRateMenuOpen
-                                                }
-                                            >
-                                                <StarRateIcon fontSize="small" />
-                                            </IconButton>
-                                        </Grid>
-                                        <Grid item>
-                                            <IconButton
-                                                onClick={this.handleEditOpen}
-                                            >
-                                                <EditIcon fontSize="small" />
-                                            </IconButton>
-                                        </Grid>
-                                    </Grid>
+                                    <ListItemSecondaryAction>
+                                        <IconButton
+                                            onClick={this.handleRateMenuOpen}
+                                        >
+                                            <StarRateIcon />
+                                        </IconButton>
+                                        <IconButton
+                                            onClick={this.handleEditOpen}
+                                        >
+                                            <EditIcon />
+                                        </IconButton>
+                                    </ListItemSecondaryAction>
                                     <Menu
                                         open={this.state.rateMenuOpen}
                                         onClose={this.handleRateMenuClose}

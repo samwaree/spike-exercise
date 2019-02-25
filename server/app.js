@@ -6,7 +6,7 @@ const mongoose = require("mongoose"),
     cors = require("cors"),
     router = express.Router(),
     helmet = require("helmet"),
-    url = "mongodb://localhost:27017/spike-exercise-test";
+    url = "mongodb://localhost:27017/spike-exercise-demo";
 
 mongoose.connect(url, { useNewUrlParser: true }, function(err) {
     if (err) {
