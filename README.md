@@ -2,6 +2,7 @@
 
 An application where you can view/add courses, rate assignments, and leave comments and descriptions on them. Created for CS 506 at UW-Madison.
 
+This project was a spike and meant to learn the fundamentals of JS, Node.js, React and Redux. Many things may not follow best practices and could easily be improved upon.
 ##
 
 Requirements:
